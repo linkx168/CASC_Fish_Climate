@@ -1,0 +1,407 @@
+---
+title: "combine_halk"
+output: html_document
+date: "2025-09-04"
+editor_options: 
+  chunk_output_type: console
+---
+
+# Library
+```{r}
+library(tidyverse)
+library(arrow)
+```
+
+# Read in data
+The data in the HALKed files are the lengthen and lengthened fish of the 8 sport fish species, we really only care about the fish that go an age here - so lets filter for where an alk was applied
+```{r}
+ia_data <- open_dataset(sources = file.path("data", 
+                                            "parquet_files", 
+                                            "ia_data", 
+                                            "halk_aged_data", 
+                                            "most_common_structures", 
+                                            "part-0.parquet")) %>% 
+  collect() %>% 
+  filter(!is.na(alk))
+
+in_data <- open_dataset(sources = file.path("data", 
+                                            "parquet_files", 
+                                            "in_data", 
+                                            "halk_aged_data", 
+                                            "most_common_structures", 
+                                            "part-0.parquet")) %>% 
+  collect() %>% 
+  filter(!is.na(alk))
+
+il_data <- open_dataset(sources = file.path("data", 
+                                            "parquet_files", 
+                                            "il_data", 
+                                            "halk_aged_data", 
+                                            "most_common_structures", 
+                                            "part-0.parquet")) %>% 
+  collect() %>% 
+  filter(!is.na(alk))
+
+mi_data <- open_dataset(sources = file.path("data", 
+                                            "parquet_files", 
+                                            "mi_data", 
+                                            "halk_aged_data", 
+                                            "most_common_structures", 
+                                            "part-0.parquet")) %>% 
+  collect() %>% 
+  filter(!is.na(alk))
+
+sd_data <- open_dataset(sources = file.path("data", 
+                                            "parquet_files", 
+                                            "sd_data", 
+                                            "halk_aged_data", 
+                                            "most_common_structures", 
+                                            "part-0.parquet")) %>% 
+  collect() %>% 
+  filter(!is.na(alk)) %>% 
+  mutate(state = "South_Dakota")
+#small data join
+small <- bind_rows(ia_data, il_data, mi_data, sd_data, in_data)
+rm(ia_data, il_data, mi_data, sd_data, in_data)
+
+
+wi_data <- open_dataset(sources = file.path("data", 
+                                            "parquet_files", 
+                                            "wi_data", 
+                                            "halk_aged_data", 
+                                            "most_common_structures", 
+                                            "part-0.parquet")) %>% 
+  collect() %>% 
+  filter(!is.na(alk))
+small2 <- bind_rows(small, wi_data)
+rm(wi_data, small)
+
+
+mn_data <- open_dataset(sources = file.path("data", 
+                                            "parquet_files", 
+                                            "mn_data", 
+                                            "halk_aged_data", 
+                                            "most_common_structures", 
+                                            "part-0.parquet")) %>% 
+  collect() %>% 
+  mutate(obs.id = as.character(obs.id)) %>% 
+  filter(!is.na(alk))
+mw_data <- bind_rows(small2, mn_data)
+rm(small2, mn_data)
+```
+
+# adding a filter for length of fish that get assigned an age
+This filtering is a step to make sure that fish that get assigned an age are within the length range of the given creation of the ALK. Example, there may only be age3+ walleye aged in the creation of an alk, we need to make sure that a super small walleye (~100mm, age-0) that would get assigned age-3 are not included 
+```{r}
+#we will need HUC and ecoregion data for this
+load("mwcascfish_src/mwcascfish/data/lake_huc10.rda")
+load("mwcascfish_src/mwcascfish/data/ecoregions.rda")
+
+mw_data <- mw_data %>% 
+  mutate(state = case_when(state == "South_Dakota" ~ "South Dakota",
+                           TRUE ~ state)) %>% 
+  left_join(
+        lake_huc10 %>% 
+          ungroup() %>% 
+          mutate(lake.id = gsub("^0", "", lake.id)) %>% 
+          left_join(
+            data.frame(state = tolower(state.abb), state.name),
+            by = "state"
+          ) %>%  select(-state) %>%  rename(state = state.name),
+        by = c("state", "lake.id")
+      ) %>% 
+      left_join(
+        ecoregions %>% 
+          mutate(lake.id = gsub("^0", "", lake.id)) %>% 
+          left_join(
+            data.frame(state = tolower(state.abb), state.name),
+            by = "state"
+          ) %>%  
+          select(-state) %>% 
+          rename(state = state.name),
+        by = c("state", "lake.id")
+      ) %>% 
+      rename(huc10.code = huc.code) %>% 
+      mutate(huc8.code = substr(huc10.code, 1, 8)) %>% 
+  mutate(aging.structure.filter = case_when(str_detect(aging.structure, "tolith") ~ "otolith",
+                                            str_detect(aging.structure, "pine") ~ "spine",
+                                            TRUE ~ aging.structure)) %>%
+  #all fish in cm for filtering
+  mutate(filtering_length = case_when(length.unit == "mm" ~ length/10,
+                                      length.unit == "in" ~ length*2.54,
+                                      TRUE ~ NA))
+
+mw_data %>% 
+  summarise(problem_huc = sum(is.na(huc10.code) & alk == "huc10.code"),
+            problem_eco = sum(is.na(level3_ecoregion) & alk == "level3_ecoregion"))
+#our joins work, all alks at the huc/eco level have that info now
+rm(ecoregions,
+   lake_huc10)
+
+#do our aging structures look alright?
+mw_data %>% 
+  filter(!is.na(age)) %>% 
+  group_by(aging.structure, 
+           alk.age.str,
+           aging.structure.filter) %>% 
+  count() %>% 
+  print(n = nrow(.))
+
+#lets make a function that will group the correct fish based on the alk and calcuate a length buffer
+make_cutoffs <- function(data, group_vars, level_name, buffer_prop = 0.05) {
+  # Only drop NAs for the grouping vars - this makes sure NA hucs are removed when HUC is important but we can still get a cutdown at the ecoregion level 
+  data_filtered <- data %>%
+    filter(!is.na(age)) %>%
+    filter(across(all_of(group_vars), ~ !is.na(.x))) %>% 
+    #filter only for fish that were used in the alk creation (aging structure of alk)
+    filter(aging.structure.filter == alk.age.str)
+  
+  data_filtered %>%
+    group_by(across(all_of(group_vars))) %>%
+    summarise(
+      alk_min_length = min(filtering_length, na.rm = TRUE),
+      alk_max_length = max(filtering_length, na.rm = TRUE),
+      # keep other hierarchy columns as-is
+      huc8.code        = first(huc8.code),
+      huc10.code       = first(huc10.code),
+      level3_ecoregion = first(level3_ecoregion),
+      state = first(state),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      buffer  = buffer_prop * (alk_max_length - alk_min_length),
+      low_cut  = alk_min_length - buffer,
+      high_cut = alk_max_length + buffer,
+      alk = level_name
+    )
+}
+  
+cut_lakeyear <- make_cutoffs(mw_data, c("lake.id","year","species", "state"), "year")
+cut_lake     <- make_cutoffs(mw_data, c("lake.id","species", "state"), "lake.id") 
+cut_huc10    <- make_cutoffs(mw_data, c("huc10.code","species"), "huc10.code") %>% 
+  select(-huc8.code, -level3_ecoregion, -state)
+cut_huc8     <- make_cutoffs(mw_data, c("huc8.code","species"), "huc8.code") %>% 
+  select(-huc10.code, -level3_ecoregion, -state)
+cut_ecoreg   <- make_cutoffs(mw_data, c("level3_ecoregion","species"), "level3_ecoregion") %>% 
+  select(-huc10.code, -huc8.code, -state)
+cut_species  <- make_cutoffs(mw_data, c("species"), "species") %>% 
+  select(-huc10.code, -huc8.code, -level3_ecoregion, -state)
+
+join_lakeyear <- mw_data %>% 
+  filter(alk == "year") %>% 
+  left_join(cut_lakeyear)
+join_lake <- mw_data %>% 
+  filter(alk == "lake.id") %>% 
+  left_join(cut_lake)
+join_huc10 <- mw_data %>% 
+  filter(alk == "huc10.code") %>% 
+  left_join(cut_huc10)
+join_huc8 <- mw_data %>% 
+  filter(alk == "huc8.code") %>% 
+  left_join(cut_huc8)
+join_eco <- mw_data %>% 
+  filter(alk == "level3_ecoregion") %>% 
+  left_join(cut_ecoreg)
+join_spec <- mw_data %>% 
+  filter(alk == "species") %>% 
+  left_join(cut_species)
+
+mw_data_with_cuts <- bind_rows(join_eco,
+                               join_huc10,
+                               join_huc8,
+                               join_lake,
+                               join_lakeyear,
+                               join_spec)
+rm(join_eco,
+   join_huc10,
+   join_huc8,
+   join_lake,
+   join_lakeyear,
+   join_spec)
+
+rm(cut_lakeyear,
+   cut_lake,
+   cut_huc10,
+   cut_huc8,
+   cut_ecoreg,
+   cut_species)
+
+glimpse(mw_data_with_cuts)
+
+#just a few check that I am able to group by the correct 
+mw_data_with_cuts %>% 
+  filter(lake.id == "11014700" & species == "walleye" & aging.structure.filter == alk.age.str & year == 2010) %>% 
+  summarise(n = n())
+
+mw_data_with_cuts %>% 
+  filter(lake.id == "11014700" & species == "walleye" & year == 2010) %>% 
+  distinct(alk.n)
+#that is a good gut check
+
+mw_data_with_cuts %>% 
+  filter(species == "walleye" & aging.structure.filter == "spine" & level3_ecoregion == "driftless_area" & !is.na(age)) %>% 
+  count()
+
+mw_data_with_cuts %>% 
+  filter(alk == "level3_ecoregion" & species == "walleye" & level3_ecoregion == "driftless_area") %>% 
+  distinct(alk.n,
+           alk.age.str)
+
+#when i make the actual cuts, it will need to be with the filtering length 
+
+mw_data_with_cuts <- mw_data_with_cuts %>% 
+  filter(filtering_length > low_cut & filtering_length < high_cut)
+
+diff <- mw_data %>% 
+  anti_join(mw_data_with_cuts)
+
+diff %>% 
+  group_by(is.na(age)) %>% 
+  count()
+
+diff %>% 
+  group_by(state) %>% 
+  count()
+
+diff %>% 
+  summarise(has_ages = sum(!is.na(age)),
+            matches_str = sum(!is.na(age) & aging.structure.filter == alk.age.str, na.rm = T),
+            has_est_age = sum(!is.na(est.age)),
+            n = n())
+# we can see here that all cut records have an estimated age. The fish that have been cut with an age is due to a different aging structure used in the halk
+
+rm(diff, mw_data, make_cutoffs)
+```
+
+
+# QA/QC
+```{r}
+names(mw_data_with_cuts)
+
+mw_data_with_cuts %>% 
+  group_by(state) %>% 
+  summarise(length_bin = sum(!is.na(length.bin)),
+            lengths = sum(!is.na(length)),
+            length_bin_calc = sum(!is.na(length) & !is.na(length.bin)),
+            n = n()) 
+
+mw_data_with_cuts %>% 
+  group_by(length.unit, state) %>% 
+  count()
+
+mw_data_with_cuts %>% 
+  group_by(species, length.unit, state) %>% 
+  summarise(min = min(length),
+            med = median(length),
+            max = max(length)) %>% 
+  print(n = nrow(.))
+#ages get assigned to some pretty crazy lengths, but we cant control what the agency reports
+
+mw_data_with_cuts %>% 
+  filter(state == "South Dakota" & species == "walleye" & length > 5000) %>% 
+  glimpse()
+
+mw_data_with_cuts %>% 
+  group_by(species) %>% 
+  count()
+
+mw_data_with_cuts %>% 
+  group_by(state) %>% 
+  summarise(n_obs = n_distinct(obs.id),
+            n = n()) %>% 
+  mutate(test = n_obs == n)
+
+check <- mw_data_with_cuts %>% 
+  filter(!is.na(length.bin)) %>% 
+  select(length, length.bin, state) 
+rm(check)
+
+mw_data_with_cuts %>% 
+  group_by(state) %>% 
+  summarise(aged_fish = sum(!is.na(age) & !is.na(est.age)))
+
+mw_data_with_cuts %>% 
+  group_by(state, alk) %>% 
+  count() %>% 
+  print(n = nrow(.))
+
+mw_data_with_cuts %>% 
+  group_by(alk.age.str) %>% 
+  count() 
+
+#the below lakes were examples of not having huc information 
+#BEA25 did not have huc but should return eco
+#FRM00 did not have either, and should return species 
+#prior to fixing NAs when assigning ages, they were returning huc10
+mw_data_with_cuts %>% 
+  filter(lake.id %in% c("BEA25", "FRM00")) %>% 
+  filter(species == "walleye") %>% 
+  distinct(lake.id, obs.id, est.age, alk)
+
+#here is our mn example, this should return ecoregion 
+mw_data_with_cuts %>% 
+  filter(lake.id == "86017800") %>% 
+  distinct(lake.id, alk)
+
+mw_data_with_cuts %>% 
+  group_by(state) %>% 
+  count()
+
+mw_data_with_cuts %>% 
+  summarise(min = min(length, na.rm = T),
+            max = max(length, na.rm = T)) %>% 
+  collect()
+
+mw_data_with_cuts %>% 
+  filter(length == 0) %>% 
+  group_by(is.na(length.bin)) %>% 
+  count() %>% 
+  collect()
+
+mw_data_with_cuts %>% 
+  filter(state == "Iowa" & length.bin == "0-9.99") %>% 
+  group_by(length) %>% 
+  count() %>% 
+  collect()
+```
+
+# making cross walk
+```{r}
+mw_data <- mw_data_with_cuts %>% 
+  rename(alk_length = length,
+         obs_id = obs.id,
+         est_age = est.age,
+         alk_age_str = alk.age.str,
+         alk_n = alk.n) %>% 
+  select(state,
+         obs_id,
+         est_age,
+         alk,
+         alk_age_str,
+         alk_length,
+         alk_n)
+#write_csv(mw_data, "halked_fish_xwalk.csv")
+```
+
+# check winni example  
+```{r}
+check <- mn_data %>% 
+  filter(lake.id == "11014700" & year == "2010")
+
+check %>% 
+  filter(species == "walleye" & !is.na(age)) %>% 
+  ggplot() +
+  geom_point(aes(age, length, color = aging.structure, shape = sampling.method))
+
+check %>% 
+  filter(species == "walleye") %>% 
+  ggplot() +
+  geom_point(aes(est.age, length, color = alk.age.str))
+
+#lets look at the actual halk 
+load(here::here("midwest_most_common_structure_halk_2025-09-03.RData"))
+
+check <- halk %>% 
+  filter(lake.id == "11014700" & species %in% "walleye" & year %in% c(2010, 2012))
+```
+
