@@ -1,0 +1,605 @@
+---
+title: "metadata_generation"
+author: "Denver Link"
+date: "2024-10-28"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Library
+```{r}
+library(arrow)
+library(tidyverse)
+```
+
+# Data
+```{r}
+mw_data <- open_dataset(sources = file.path("D:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "Parquet files", "hive_update"), partitioning = c("state")) 
+```
+
+# Species for taxonomy
+```{r}
+mw_data %>% 
+  distinct(species_1) %>% 
+  arrange(species_1) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+```
+
+# Sample of dataset from each state
+```{r}
+indy <- mw_data %>% 
+  filter(state == "Indiana") %>% 
+  collect() %>% 
+  group_by(lake_id) %>% 
+  sample_n(size = 34, replace = F)
+write_csv(indy, "metadata_example.csv")
+rm(indy)
+```
+
+# Producing meta data information
+```{r}
+#state
+mw_data %>% 
+  group_by(state) %>% 
+  count() %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+#county
+county <- mw_data %>% 
+  group_by(county, state) %>% 
+  count() %>% 
+  collect() %>% 
+  group_by(state) %>% 
+  sample_n(10)
+rm(county)
+
+#lake name
+lake_names <- mw_data %>% 
+  group_by(lake_name, state) %>% 
+  count() %>% 
+  collect()%>% 
+  group_by(state) %>% 
+  sample_n(10)
+rm(lake_names)
+
+#lake_ids
+lake_ids <-  mw_data %>% 
+  distinct(lake_id, state) %>% 
+  collect() %>% 
+  group_by(state) %>% 
+  sample_n(10)
+rm(lake_ids)
+
+#nhdhr_id
+nhdhr_id <- mw_data %>% 
+  distinct(nhdhr_id, lake_id, state) %>% 
+  collect() %>% 
+  group_by(state) %>% 
+  sample_n(10)
+rm(nhdhr_id)
+
+#lake centroid lat
+lat <- mw_data %>% 
+  distinct(latitude_lake_centroid, state) %>% 
+  collect() %>% 
+  group_by(state) %>% 
+  sample_n(10)
+rm(lat)
+
+mw_data %>% 
+  summarise(min = as.character(min(latitude_lake_centroid, na.rm = T)),
+            max = as.character(max(latitude_lake_centroid, na.rm = T))) %>% 
+  collect()
+
+#lake centroid lon
+lon <- mw_data %>% 
+  distinct(longitude_lake_centroid, state) %>% 
+  collect() %>% 
+  group_by(state) %>% 
+  sample_n(10)
+rm(lon)
+
+mw_data %>% 
+  summarise(min = as.character(min(longitude_lake_centroid, na.rm = T)),
+            max = as.character(max(longitude_lake_centroid, na.rm = T))) %>% 
+  collect()
+
+#date survey
+survey_date <- mw_data %>% 
+  distinct(date_survey) %>% 
+  collect() 
+rm(survey_date)
+
+mw_data %>% 
+  distinct(date_survey, state) %>% 
+  filter(year(date_survey) > 2024 | year(date_survey) < 1800 | is.na(date_survey)) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+mw_data %>% 
+  distinct(date_survey, state) %>% 
+  filter(!(year(date_survey) > 2024 | year(date_survey) < 1800 | is.na(date_survey))) %>% 
+  summarise(min = min(date_survey),
+            max = max(date_survey)) %>% 
+  collect()
+
+#date total effort ident
+total_effort_ident_date <- mw_data %>% 
+  distinct(date_total_effort_ident) %>% 
+  collect()
+rm(total_effort_ident_date)
+
+mw_data %>% 
+  distinct(date_total_effort_ident, state) %>% 
+  filter(year(date_total_effort_ident) > 2024 | year(date_total_effort_ident) < 1800 | is.na(date_total_effort_ident)) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+mw_data %>% 
+  distinct(date_total_effort_ident) %>% 
+  filter(!(year(date_total_effort_ident) > 2024 | year(date_total_effort_ident) < 1800 | is.na(date_total_effort_ident))) %>% 
+  summarise(min = min(date_total_effort_ident),
+            max = max(date_total_effort_ident)) %>% 
+  collect()
+
+#date sub effort ident
+sub_effort_ident_date <- mw_data %>% 
+  distinct(date_sub_effort_ident) %>% 
+  collect()
+rm(sub_effort_ident_date)
+
+mw_data %>% 
+  distinct(date_sub_effort_ident, state) %>% 
+  filter(year(date_sub_effort_ident) > 2024 | year(date_sub_effort_ident) < 1800 | is.na(date_sub_effort_ident)) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+mw_data %>% 
+  distinct(date_sub_effort_ident) %>% 
+  filter(!(year(date_sub_effort_ident) > 2024 | year(date_sub_effort_ident) < 1800 | is.na(date_sub_effort_ident))) %>% 
+  summarise(min = min(date_sub_effort_ident),
+            max = max(date_sub_effort_ident)) %>% 
+  collect()
+
+#date sample 
+sample_date <- mw_data %>% 
+  distinct(date_sample) %>% 
+  collect()
+rm(sample_date)
+
+mw_data %>% 
+  distinct(date_sample, state) %>% 
+  filter(year(date_sample) > 2024 | year(date_sample) < 1800 | is.na(date_sample)) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+mw_data %>% 
+  distinct(date_sample) %>% 
+  filter(!(year(date_sample) > 2024 | year(date_sample) < 1800 | is.na(date_sample))) %>% 
+  summarise(min = min(date_sample),
+            max = max(date_sample)) %>% 
+  collect()
+
+mw_data %>% 
+  group_by(state) %>% 
+  summarise(na_yes = sum(is.na(date_sample)),
+            na_no = sum(!is.na(date_sample))) %>% 
+  collect()
+
+
+#so our earliest year is 1940 based off total effort ident but we have sub and sample dates prior?
+mw_data %>% 
+  filter(year(date_sub_effort_ident) < 1940) %>% 
+  group_by(is.na(total_effort_ident), state) %>% 
+  count() %>% 
+  collect()
+
+mw_data %>% 
+  filter(year(date_sample) < 1940) %>% 
+  group_by(is.na(total_effort_ident), state) %>% 
+  count() %>% 
+  collect()
+
+# year
+mw_data %>% 
+  group_by(year) %>% 
+  count() %>% 
+  collect() %>% 
+  arrange(year) %>% 
+  print(n = nrow(.)) 
+
+mw_data %>% 
+  group_by(state) %>% 
+  summarise(na_yes = sum(is.na(year)),
+            na_no = sum(!is.na(year))) %>% 
+  collect()
+
+mw_data %>% 
+  distinct(year) %>% 
+  filter(!(is.na(year) | year > 2024 | year < 1900)) %>% 
+  summarise(min_year = min(year),
+            max_year = max(year)) %>% 
+  collect()
+
+#month 
+mw_data %>% 
+  group_by(month) %>% 
+  count() %>% 
+  arrange(month) %>% 
+  collect()
+
+#survey id
+survey_id <- mw_data %>% 
+  group_by(survey_id, state) %>% 
+  count() %>% 
+  collect() %>% 
+  group_by(state) %>% 
+  sample_n(10, replace = T)
+rm(survey_id)
+
+#survey type
+survey_type <- mw_data %>% 
+  distinct(state,
+           survey_type) %>% 
+  collect()
+rm(survey_type)
+
+mw_data %>% 
+  group_by(state) %>% 
+  summarise(na_survey_type = sum(is.na(survey_type)),
+            has_survey_type = sum(!is.na(survey_type))) %>% 
+  collect()
+
+#sampling method 
+sampling_methods <- mw_data %>% 
+  group_by(sampling_method_simple,
+           sampling_method,
+           sampling_method_2,
+           state) %>% 
+  count() %>% 
+  collect()
+
+sampling_methods %>%
+  group_by(state) %>% 
+  sample_n(5) %>% 
+  print(n = nrow(.))
+rm(sampling_methods)
+
+#gear data notes
+gear_data_notes <- mw_data %>% 
+  group_by(gear_data_notes, state) %>% 
+  count() %>% 
+  collect()
+rm(gear_data_notes)
+
+#targeted species 
+mw_data %>% 
+  distinct(state,
+           target_species) %>% 
+  collect() %>% 
+  arrange(state) %>% 
+  print(n = nrow(.))
+
+#total_effort_ident
+#there shouldn't be any concern with this column itself, would have to check its relation with other columns but that is done extensively within each state's ag
+
+#total_effort_1
+total_effort_1 <- mw_data %>% 
+  distinct(total_effort_1, flag, state) %>% 
+  collect()
+rm(total_effort_1)
+
+mw_data %>% 
+  distinct(total_effort_1) %>% 
+  filter(!is.na(total_effort_1)) %>% 
+  summarise(max = max(total_effort_1),
+            min = min(total_effort_1)) %>% 
+  collect()
+
+#total effort 2
+total_effort_2 <- mw_data %>% 
+  distinct(total_effort_2, state) %>% 
+  collect()
+rm(total_effort_2)
+
+mw_data %>% 
+  distinct(total_effort_2) %>% 
+  filter(!is.na(total_effort_2)) %>% 
+  summarise(max = max(total_effort_2),
+            min = min(total_effort_2)) %>% 
+  collect()
+
+mw_data %>% 
+  distinct(total_effort_2, flag) %>% 
+  filter(total_effort_2 > 2000) %>% 
+  collect()
+
+#total effort units
+mw_data %>% 
+  distinct(total_effort_1_units, state) %>% 
+  collect() %>% 
+  arrange(total_effort_1_units) %>% 
+  print(n = nrow(.))
+
+mw_data %>% 
+  distinct(total_effort_2_units, state) %>% 
+  collect() %>% 
+  arrange(total_effort_2_units) %>% 
+  print(n = nrow(.))
+
+mw_data %>% 
+  distinct(state, total_effort_1_units, total_effort_2_units) %>% 
+  collect() %>% 
+  arrange(state) %>% 
+  print(n = nrow(.))
+
+#total effort nothing caught
+mw_data %>% 
+  distinct(state, total_effort_nothing_caught) %>% 
+  collect() %>% 
+  arrange(state)
+
+#water temperature
+mw_data %>% 
+  group_by(state) %>% 
+  summarise(max = max(water_temp, na.rm = T),
+            min = min(water_temp, na.rm = T)) %>% 
+  collect()
+
+mw_data %>% 
+  filter(state %in% c("Wisconsin", "Minnesota")) %>% 
+  group_by(total_effort_ident, state) %>% 
+  summarise(n = n_distinct(water_temp)) %>% 
+  collect() %>% 
+  filter(n > 1) %>%
+  group_by(state) %>% 
+  count()
+
+#water clarity units
+mw_data %>% 
+  distinct(water_temp_units, state) %>% 
+  collect()
+
+#water clarity
+mw_data %>% 
+  distinct(water_clarity, state) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+mw_data %>% 
+  filter(state %in% c("Wisconsin")) %>% 
+  group_by(total_effort_ident, state) %>% 
+  summarise(n = n_distinct(water_clarity)) %>% 
+  collect() %>% 
+  filter(n > 1) %>%
+  group_by(state) %>% 
+  count()
+
+mw_data %>% 
+  summarise(min = min(water_clarity, na.rm = T),
+            max = max(water_clarity, na.rm = T)) %>% 
+  collect()
+
+#water clarity units
+mw_data %>% 
+  distinct(water_clarity_units, state) %>% 
+  collect()
+
+#survey start and end locations
+mw_data %>% 
+  summarise(min = min(lat_start, na.rm = T),
+            max = max(lat_start, na.rm = T)) %>% 
+  collect()
+
+mw_data %>% 
+  summarise(min = min(lon_start, na.rm = T),
+            max = max(lon_start, na.rm = T)) %>% 
+  collect()
+
+mw_data %>% 
+  summarise(min = min(lat_end, na.rm = T),
+            max = max(lat_end, na.rm = T)) %>% 
+  collect()
+
+mw_data %>% 
+  summarise(min = min(lon_end, na.rm = T),
+            max = max(lon_end, na.rm = T)) %>% 
+  collect()
+
+#site_id
+mw_data %>% 
+  filter(!is.na(site_id)) %>% 
+  distinct(site_id, state) %>% 
+  collect() %>%
+  group_by(state) %>% 
+  sample_frac(.05) %>% 
+  print(n = nrow(.))
+
+#sub effort ident
+
+
+#sub effort 1
+mw_data %>% 
+  summarise(min = min(sub_effort_1, na.rm = T),
+            max = max(sub_effort_1, na.rm = T)) %>% 
+  collect()
+
+#sub effort 1 units
+mw_data %>% 
+  distinct(state, sub_effort_1_units) %>% 
+  arrange(sub_effort_1_units) %>% 
+  collect()
+
+mw_data %>% 
+  group_by(state, sub_effort_2_units) %>% 
+  summarise(min = min(sub_effort_2, na.rm = T),
+            max = max(sub_effort_2, na.rm = T)) %>% 
+  collect()
+
+#length_1
+mw_data %>% 
+  summarise(min = min(length_1, na.rm = T),
+            max = max(length_1, na.rm = T)) %>% 
+  collect()
+
+#length units
+mw_data %>% 
+  distinct(state, length_unit_1) %>% 
+  collect()
+
+#length bin
+mw_data %>% 
+  distinct(length_bin, length_bin_unit, state) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+#age
+mw_data %>% 
+  group_by(state) %>% 
+  summarise(min = min(age, na.rm = T),
+            max = max(age, na.rm = T)) %>% 
+  collect()
+
+#aging structure 
+mw_data %>% 
+  distinct(state, aging_structure_1) %>% 
+  collect() %>% 
+  arrange(aging_structure_1) %>% 
+  print(n = nrow(.))
+
+#weight_1
+mw_data %>% 
+  summarise(min = min(weight_1, na.rm = T),
+            max = max(weight_1, na.rm = T)) %>% 
+  collect()
+
+#weight_unit
+mw_data %>% 
+  distinct(state, weight_unit_1) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+#batch weight
+mw_data %>% 
+  filter(!is.na(batch_weight)) %>% 
+  distinct(state, batch_weight, batch_weight_unit) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+#sex
+mw_data %>% 
+  distinct(state, sex) %>% 
+  collect() %>% 
+  arrange(sex) %>% 
+  print(n = nrow(.))
+
+#age-class
+mw_data %>% 
+  distinct(state, age_class) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+#ind fish ident
+mw_data %>% 
+  distinct(state, ind_fish_ident) %>% 
+  collect() %>% 
+  group_by(state, is.na(ind_fish_ident)) %>% 
+  count() %>% 
+  print(n = nrow(.))
+
+#lake size 
+mw_data %>% 
+  group_by(state) %>% 
+  summarise(min = min(lakesize, na.rm = T),
+            max = max(lakesize, na.rm = T)) %>% 
+  collect()
+
+#lake size units
+mw_data %>% 
+  distinct(state, lakesize_units) %>% 
+  collect() %>% 
+  print(n = nrow(.))
+
+#lat and lon unspec
+mw_data %>% 
+  summarise(min_lat = min(lat_unspec, na.rm = T),
+            max_lat = max(lat_unspec, na.rm = T),
+            min_lon = min(lon_unspec, na.rm = T),
+            max_lon = max(lon_unspec, na.rm = T)) %>% 
+  collect()
+
+mw_data %>% 
+  group_by(state) %>% 
+  summarise(min_lat = min(lat_unspec, na.rm = T),
+            max_lat = max(lat_unspec, na.rm = T),
+            min_lon = min(lon_unspec, na.rm = T),
+            max_lon = max(lon_unspec, na.rm = T)) %>% 
+  collect()
+
+#waterbody type 
+mw_data %>% 
+  distinct(state, waterbody_type) %>% 
+  collect() %>% 
+  arrange(state) %>% 
+  print(n = nrow(.))
+
+#location notes 1
+loc_notes <- mw_data %>% 
+  distinct(state, location_notes_1) %>% 
+  collect() %>% 
+  arrange(state)
+rm(loc_notes)
+
+mw_data %>% 
+  distinct(state, location_notes_1) %>% 
+  collect() %>% 
+  group_by(state, is.na(location_notes_1)) %>%
+  count() %>% 
+  print(n = nrow(.))
+
+#notes_1
+notes <- mw_data %>% 
+  distinct(state, notes_1) %>% 
+  collect() %>% 
+  arrange(state)
+rm(notes)
+
+mw_data %>% 
+  distinct(state, notes_1) %>% 
+  collect() %>% 
+  group_by(state, is.na(notes_1)) %>% 
+  count() %>% 
+  arrange(state) %>% 
+  print(n = nrow(.))
+
+#obs_id 
+mw_data %>% 
+  group_by(state) %>%
+  mutate(obs_id = as.numeric(obs_id)) %>% 
+  summarise(min = min(obs_id),
+            max = max(obs_id),
+            n_distinct(obs_id)) %>% 
+  collect()
+```
+
+
+```{r}
+mw_data <- mw_data %>% 
+  collect()
+
+mw_data %>% 
+  distinct(state, lake_name, lake_id, nhdhr_id, latitude_lake_centroid) %>% 
+  group_by(state) %>%
+  summarise(nhdhr_id_count = sum(!is.na(nhdhr_id)),
+            lat = sum(!is.na(latitude_lake_centroid)),
+            total_lakes = n(),
+            missing_nhd = total_lakes - nhdhr_id_count,
+            missing_lat = total_lakes - lat,
+            coverage_nhd = nhdhr_id_count/total_lakes,
+            coverage_lat = lat/total_lakes
+              )
+```
+
