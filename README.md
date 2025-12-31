@@ -5,7 +5,7 @@ Denver Link, Michael R. Verhoeven, Holly K. Masui, Jenna K.R. Nelson, Paul N. Fr
 Data that accompany this code repository are found on ScienceBase: 
 [INSERT CITATION]
 
-This repository contains code used to produce a reproducible, statewide aggregation of fisheries survey data from the Midwestern United States, as well as scripts that use the cleaned and aggregated dataset to generate region-wide abundance products and age-based analyses. Files are indexed using prefixes a–e to indicate their role within the workflow. Files with prefixes a–b use original state agency data to produce state-level Parquet files through an extensive data aggregation process. These files collectively form a region-wide, hive-partitioned fisheries database. Files with prefixes c–e operate on this hived dataset rather than on raw state-level data. Specifically, c-prefixed files read the hived dataset to generate state-specific abundance products. The d-prefixed file contain analyses using the hived dataset that are referenced in a companion manuscript. Lastly the e-prefixed file does a general exploration of the hived database.
+This repository contains code used to produce a reproducible, statewide aggregation of fisheries survey data from the Midwestern United States, as well as scripts that use the cleaned and aggregated dataset to generate region-wide abundance products and age-based analyses. Files are indexed using prefixes a–e to indicate their role within the workflow. Files with prefixes a–b use original state agency data to produce state-level Parquet files through an extensive data aggregation process. These files collectively form a region-wide, hive-partitioned fisheries database. Files with prefixes c–e operate on this hived dataset rather than on raw state-level data. Specifically, c-prefixed files read the hived dataset to generate state-specific abundance products. The d-prefixed file contain analyses using the hived dataset that are referenced in a companion manuscript (Hansen et al, in prep). Lastly the e-prefixed file does a general exploration of the hived database.
 
 Users should note that the original, raw fisheries survey data required to run a–b prefixed scripts are not made publicly avaiable. Users interested in exploring or modifying the aggregation workflow that converts raw state data into the cleaned hived dataset should contact the authors directly and/or request access to the original data from the relevant state agencies.
 
@@ -15,7 +15,7 @@ The aggregation scripts were developed using a combination of tidyverse and data
 
 This repository includes the following scripts and workflows, organized by prefix to reflect their role in the data pipeline.
 
-### a — Data exploration and documentation
+### a — Original data column naming and reading
 
 - **a_CASC_Data_Explainer_Work_MRV.Rmd**  
   Documentation-focused script used to standardize and validate incoming state-level fisheries data prior to aggregation.
@@ -36,7 +36,7 @@ The following scripts aggregate raw state fisheries data into standardized, stat
 
 #### b_HALK — Hierarchical Age–Length Key (HALK) workflow
 
-`b_HALK` is a multi-step workflow used to apply hierarchical age–length keys to estimate fish ages following Frater et al. 2024. This folder contains three sub-workflows:
+`b_HALK` is a multi-step workflow used to apply hierarchical age–length keys to estimate fish ages following Frater et al 2024. This folder contains three sub-workflows:
 
 ##### a_create_halk
 - **create_mw_most_common_structure_halk.R**  
