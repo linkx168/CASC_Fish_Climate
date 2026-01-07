@@ -34,7 +34,9 @@ This could readily be changed into a function that takes a filepath and returns 
 * note Holly has to change file paths to "D" 
 ```{r}
 #generate a file list to import
-files_list <- list.files(path = "D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/SD_Data/sd_raw_disaggregated_data", pattern = ".+\\.csv") #grabs only.csv files
+
+#UPDATE FILE PATH TO sd DISAGGREGATED DATA FOLDER
+files_list <- list.files(path = , pattern = ".+\\.csv") #grabs only.csv files
 files_list
 
 
@@ -47,7 +49,8 @@ for(i in 1:n) {
   filei <- word(gsub(".csv","", files_list[i]), start = -1, sep = fixed("/"))
   #this does those two steps in one package
   assign(filei ,
-          fread(paste0("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/SD_Data/sd_raw_disaggregated_data/",
+         #UPDATE FILE PATH TO sd DISAGGREGATED DATA FOLDER
+          fread(paste0(,
                                           files_list[i]),
          drop = c("V1")))
   
@@ -324,7 +327,8 @@ sd_merged_ce[ , total_effort_nothing_caught := all(sub_nothing_caught)  , .(tota
 sd_effort_lakesurveysdata_2Nov2023[ , summary(total_effort_1) , sampling_method.1 ] %>% print(n = nrow(.))
 
 #this file is found in the SD folder on the drive - currently must be downloaded
-gear_units <- fread("Data_and_Scripts/Data/input/SD_gear_unitizer.csv")
+#update filepath for SD_gear_unitizer.csv
+gear_units <- fread()
 
 sd_merged_ce[gear_units, on = .(sampling_method.1 = sampling_method) , total_effort_1_units :=  sampling_method_2 ]
 
@@ -358,7 +362,8 @@ sd_merged_ce[ ,`:=` (lat_2= NULL, lon_2 = NULL)]
 sd_merged_ce[ , .N , is.na(lat_unspec) ]
 
 #adding crosswalk from MSU team
-crosswalk_msu <- read_csv("MGLP_FISH_LAKES_12Aug24.csv") %>% 
+#update with filepath for mglp fish lakes 
+crosswalk_msu <- read_csv() %>% 
   filter(STATE == "SD") %>% 
   rename(lake_id = STATE_ID,
          nhdhr_id = NHDHR_ID,
@@ -403,7 +408,8 @@ sd_merged_ce %>%
 rm(crosswalk_msu)
 
 #now do a similar thing with USGS 
-lat_lon_usgs <- read_csv("lake_metadata.csv") %>% 
+#update filepath for lake metadata
+lat_lon_usgs <- read_csv() %>% 
   filter(state == "SD") %>%
   select(site_id, 
          centroid_lat,
@@ -485,7 +491,9 @@ sd_merged_ce %>%
 
 #this file lives in the crosswalk folder in the drive
 #here we read in a gear cross walk, the file contains each unique gear and assigns it new labels that are consistent across states
-gear_xwalk <- read_csv("gears_by_state.csv") %>% 
+
+#update filepath for gears_by_state.csv
+gear_xwalk <- read_csv() %>% 
   filter(state == "South_Dakota") %>% 
   rename(sampling_method.1 = gear_1) %>% 
   select(sampling_method.1, sampling_method_simple, sampling_method_1, sampling_method_2)
@@ -875,15 +883,8 @@ sd_merged_ce_trial %>%
 
 # Adding HALK ages
 ```{r}
-halk <- read_csv(file.path("D:",
-                           "Shared drives",
-                           "Hansen Lab",
-                           "RESEARCH PROJECTS",
-                           "Fish Survey Data",
-                           "Parquet files",
-                           "Age-assigned Data",
-                           "d_link_2025_hive",
-                           "halked_fish_xwalk.csv")) 
+#update with file path for "halked_fish_xwalk.csv"
+halk <- read_csv(file.path()) 
 halk %>% 
   group_by(state) %>% 
   count()
@@ -965,9 +966,11 @@ sd_merged_ce_trial <- sd_merged_ce_trial %>%
 
 ##export as Parquet
 ```{r}
-write_dataset(dataset = sd_merged_ce_trial, path = "Data_and_Scripts/Data/output/sd_file_arrow")
+#update with filepath for saving
+write_dataset(dataset = sd_merged_ce_trial, path = )
 
-sd_data <- open_dataset(sources = "Data_and_Scripts/Data/output/sd_file_arrow/")
+#update with saved filepath of parquet file
+sd_data <- open_dataset(sources = )
 
 glimpse(sd_data)
 ```

@@ -37,7 +37,9 @@ options(scipen = 999)
 ##Data
 ```{r}
 #generate a file list to import
-files_list <- list.files(path = "D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/MI_Data/mi_raw_disaggregated_data", pattern = ".+\\.csv") #grabs only.csv files
+
+#UPDATE FILE PATH TO MI DISAGGREGATED DATA FOLDER
+files_list <- list.files(path = , pattern = ".+\\.csv") #grabs only.csv files
 files_list
 
 #object for use in loop (simple length of file list)
@@ -48,7 +50,8 @@ for(i in 1:n) {
   filei <- word(gsub(".csv","", files_list[i]), start = -1, sep = fixed("/"))
   #this does those two steps in one package
   assign(filei ,
-          fread(paste0("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/MI_Data/mi_raw_disaggregated_data/",
+         #UPDATE FILE PATH TO MI DISAGGREGATED DATA FOLDER
+          fread(paste0(,
                                           files_list[i])))
   
   # if the file is a crosswalk, do not rename anything, just loop to the confirm import line
@@ -702,7 +705,9 @@ mi_catch_eff_merge %>%
 
 #matching gear schema across states for the hive
 #here i use the gears xwalk found in the google drive crosswalk folder
-gear_xwalk <- read_csv("gears_by_state.csv") %>% 
+
+#UPDATE WITH FILEPATH TO gears_by_state.csv
+gear_xwalk <- read_csv() %>% 
   filter(state == "Michigan") %>% 
   rename(sampling_method_agency = gear_2) %>% 
   select(sampling_method_agency, 
@@ -749,7 +754,8 @@ mi_catch_eff_merge <- mi_catch_eff_merge %>%
 #adding lat and lon centroids
 
 #lat and lon info coming from usgs data repo (https://www.sciencebase.gov/catalog/item/6206d3c2d34ec05caca53071) lake metadata file
-lat_lon_usgs <- read_csv("lake_metadata.csv") %>% 
+#UPDATE WITH lake_metadata.csv
+lat_lon_usgs <- read_csv() %>% 
   filter(state == "MI") %>% 
   select(site_id,
          centroid_lon,
@@ -770,8 +776,8 @@ mi_catch_eff_merge <- mi_catch_eff_merge %>%
 rm(lat_lon_usgs)
 #there is one survey_id (4042) that has fish but no effort, lake level info is retained by the effort file. Thus, we are not able to generate a lat/lon for that survey (three total effort idents in one lake)
 
-
-msu_crosswalk <- read_csv("MGLP_FISH_LAKES_12Aug24.csv") %>% 
+#UPDATE WITH FILEPATH FOR MGLP_FISH_LAKES_12Aug24.csv
+msu_crosswalk <- read_csv() %>% 
   filter(STATE == "MI") %>% 
   select(STATE_ID,
          NHDHR_ID) %>% 
@@ -1124,15 +1130,8 @@ glimpse(mi_data)
 
 # Adding HALK ages
 ```{r}
-halk <- read_csv(file.path("D:",
-                           "Shared drives",
-                           "Hansen Lab",
-                           "RESEARCH PROJECTS",
-                           "Fish Survey Data",
-                           "Parquet files",
-                           "Age-assigned Data",
-                           "d_link_2025_hive",
-                           "halked_fish_xwalk.csv")) 
+#UPDATE WITH FILEPATH FOR halked_fish_xwalk.csv
+halk <- read_csv(file.path()) 
 halk %>% 
   group_by(state) %>% 
   count()
@@ -1321,18 +1320,13 @@ mi_data %>%
 ```{r}
 
 
-#save to disk:
-
-# saveRDS(mi_catch_eff_merge, file = "Data_and_Scripts\\Data\\output\\mi_flat_effort_indivfish_merge.rds")
-# mi_catch_eff_merge <- readRDS(file = "Data_and_Scripts\\Data\\output\\mi_flat_effort_indivfish_merge.rds")
-
-
-
 
 mi_data <- as_arrow_table(mi_data)
 
-write_dataset(dataset = mi_data, path = "Data_and_Scripts/Data/output/mi_file_arrow")
+#update with filepath for saving
+write_dataset(dataset = mi_data, path = )
 
+#update with filepath where parquet was saved
 mi_data <- open_dataset("Data_and_Scripts/Data/output/mi_file_arrow")
 
 glimpse(mi_data)

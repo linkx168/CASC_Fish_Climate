@@ -28,7 +28,9 @@ options(scipen = 999)
 This could readily be changed into a function that takes a file path and returns files into environment.
 ```{r}
 #generate a file list to import
-files_list <- list.files(path = "D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/IN_Data/in_raw_disaggregated_data", pattern = ".+\\.csv") #grabs only.csv files
+
+#UPDATE FILE PATH TO IN DISAGGREGATED DATA FOLDER
+files_list <- list.files(path = , pattern = ".+\\.csv") #grabs only.csv files
 files_list
 
 
@@ -41,7 +43,8 @@ for(i in 1:n) {
   filei <- word(gsub(".csv","", files_list[i]), start = -1, sep = fixed("/"))
   #this does those two steps in one package
   assign(filei ,
-          fread(paste0("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/IN_Data/in_raw_disaggregated_data/",
+         #UPDATE FILE PATH TO In DISAGGREGATED DATA FOLDER
+          fread(paste0(,
                                           files_list[i])))
   
   # if the file is a crosswalk, do not rename anything, just loop to the confirm import line
@@ -1275,7 +1278,8 @@ in_data_prep %>%
   count()
 
 #updated crosswalk from msu team
-msu_crosswalk <- read_csv("MGLP_FISH_LAKES_12Aug24.csv") %>% 
+#READ IN FILEPATH FOR MGLP_FISH_LAKES_12Aug24.csv
+msu_crosswalk <- read_csv() %>% 
   filter(STATE == "IN") %>% 
   rename(lake_id = STATE_ID) %>% 
   distinct(lake_id,
@@ -1325,7 +1329,8 @@ in_data_prep %>%
 
 #now pulling centroids from USGS
 #lat and lon info coming from usgs data repo (https://www.sciencebase.gov/catalog/item/6206d3c2d34ec05caca53071) lake metadata file
-lat_lon_usgs <- read_csv("lake_metadata.csv") %>% 
+#READ IN FILEPATH FOR lake_metadata.csv
+lat_lon_usgs <- read_csv() %>% 
   filter(state == "IN") %>% 
   select(site_id,
          centroid_lon,
@@ -1386,7 +1391,8 @@ rm(coord_check)
 glimpse(in_data_prep)
 
 #gear xwalk
-gear_xwalk <- read_csv("gears_by_state.csv") %>% 
+#UPDATE WITH FILEPATH FOR gears_by_state.csv
+gear_xwalk <- read_csv() %>% 
   filter(state == "Indiana") %>% 
   rename(sampling_method_agency = gear_1) %>% 
   select(sampling_method_agency,
@@ -1807,15 +1813,8 @@ in_data <- in_data_prep %>%
 
 # Add in HALK Ages
 ```{r}
-halk <- read_csv(file.path("D:",
-                           "Shared drives",
-                           "Hansen Lab",
-                           "RESEARCH PROJECTS",
-                           "Fish Survey Data",
-                           "Parquet files",
-                           "Age-assigned Data",
-                           "d_link_2025_hive",
-                           "halked_fish_xwalk.csv")) 
+#UPDATE WITH FILEPATH FOR halked_fish_xwalk.csv
+halk <- read_csv(file.path()) 
 halk %>% 
   group_by(state) %>% 
   count()
@@ -2034,8 +2033,11 @@ Based on the exploratory code above, there are a few things to point out:
 Make IN Parquet
 ```{r}
 in_hive <- as_arrow_table(in_data)
-write_dataset(dataset = in_data, path = "Data_and_Scripts/Data/output/in_file_arrow")
 
-in_data <- open_dataset("Data_and_Scripts/Data/output/in_file_arrow") 
+#UPDATE WITH FILEPATH FOR SAVING
+write_dataset(dataset = in_data, path = )
+
+#UPDATE WITH FILEPATH OF SAVED PARQUET FILE
+in_data <- open_dataset() 
 glimpse(in_data)
 ```

@@ -27,7 +27,9 @@ options(scipen = 999)
 ##Data
 ```{r}
 #generate a file list to import
-files_list <- list.files(path = "D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/IA_Data/ia_raw_disaggregated_data", pattern = ".+\\.csv") #grabs only.csv files
+
+#UPDATE FILE PATH TO IOWA DISAGGREGATED DATA FOLDER
+files_list <- list.files(path = , pattern = ".+\\.csv") #grabs only.csv files
 files_list
 
 
@@ -40,7 +42,8 @@ for(i in 1:n) {
   filei <- word(gsub(".csv","", files_list[i]), start = -1, sep = fixed("/"))
   #this does those two steps in one package
   assign(filei ,
-          fread(paste0("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/IA_Data/ia_raw_disaggregated_data/",
+         #UPDATE FILE PATH TO IOWA DISAGGREGATED DATA FOLDER
+          fread(paste0(,
                                           files_list[i])))
   
   # if the file is a crosswalk, do not rename anything, just loop to the confirm import line
@@ -330,7 +333,9 @@ ia_fishobs[ , paste(unique(sampling_method.2)) ,  .(survey_id, sampling_method.1
 
 # gotta fix sampling method before we can make new tot eff idents:
 # this file lives in the IA_metadata folder on drive
-gear_corrections <- fread(file = "IA_gear_notes.csv")
+
+#SET FILE PATH TO IA_gear_notes.csv, CONTACT AUTHORS FOR THIS FILE
+gear_corrections <- fread(file = )
 #rename these and tidy up those columns  a bit:
 #gear data notes
         # For the gear data notes, we should NA everything that has :NA in it, then collapse into a single gear data notes col 
@@ -789,7 +794,9 @@ names(ia_fishobs)[str_detect(names(ia_fishobs), "notes")]
 
 names(ia_fishobs)      
    # implement Jack's flags and deletions, this file is found in the IA metadata file of the Filter Workshop Data
-    notes_corrections <- fread("IA_comments_notes.csv")
+
+#UPDATE FILE PATH TO IA_comments_notes.csv, CONTACT AUTHORS FOR FILE
+    notes_corrections <- fread()
     
 #tidy up the iowa data to match for filter on jack's key
         cols_4 <- c("notes.1", "notes.6", "garbage_bin_notes.9")
@@ -939,7 +946,8 @@ sampling_methods <- ia_fishobs %>%
 #I will then take consolidated gear as sampling method 2 - more refined gear type
 rm(sampling_methods)
 
-gear_xwalk <- read_csv("gears_by_state.csv") %>% 
+#UPDATE FILEPATH TO gearS_by_state.csv
+gear_xwalk <- read_csv() %>% 
   filter(state == "Iowa") %>% 
   rename(consolidated_gear = gear_2,
          sampling_method_agency = gear_1) %>% 
@@ -956,7 +964,8 @@ ia_fishobs <- ia_fishobs %>%
 rm(gear_corrections, gear_xwalk)
 
 ####recover lake ids from old version of data sent by Iowa#################
-ia_dat_old <-  fread("D:\\Shared drives\\Hansen Lab\\RESEARCH PROJECTS\\Fish Survey Data\\IA_Data\\ia_raw_disaggregated_data\\Archived\\ia_fishlengths_24Oct2023.csv")
+#UPDATE FILE PATH TO ia_fishlengths_24Oct2023.csv FROM DISAGGREGATED FOLDER
+ia_dat_old <-  fread()
 
 ialakecodekey <- ia_dat_old[ , .("Lat" = mean(Station_Lat), "Lon" = mean(Station_Long)) , .(County, LakeName, LakeID)]
 
@@ -974,7 +983,8 @@ id_check <- ia_fishobs %>%
   distinct(lake_name_1, lake_id)
 rm(id_check)
 
-msu_crosswalk <- read_csv("MGLP_FISH_LAKES_12Aug24.csv") %>% 
+# UPDATE FILEPATH TO MGLP_FISH_LAKES_12Aug24.csv
+msu_crosswalk <- read_csv() %>% 
   filter(STATE == "IA") %>% 
   select(NHDHR_ID,
          STATE_ID,
@@ -1013,7 +1023,8 @@ check %>%
 rm(check, ialakecodekey, msu_crosswalk)
 
 #now lets pick up some more lake info from USGS 
-usgs <- read_csv("lake_metadata.csv") %>% 
+#UPDATE FILEPATH TO lake_metadata.csv
+usgs <- read_csv() %>% 
   filter(state == "IA") %>% 
   select(site_id, 
          lake_name,
@@ -1716,15 +1727,8 @@ rm(ia_fishobs_30Nov2023, b, cde, ia_age_length_21Aug2021, ia_BLG_age_length_21Au
 
 # Adding HALK Ages
 ```{r}
-halk <- read_csv(file.path("D:",
-                           "Shared drives",
-                           "Hansen Lab",
-                           "RESEARCH PROJECTS",
-                           "Fish Survey Data",
-                           "Parquet files",
-                           "Age-assigned Data",
-                           "d_link_2025_hive",
-                           "halked_fish_xwalk.csv")) 
+#UPDATE FILEPATH TO HALKED FISH CROSSWALK (halked_fish_xwalk.CSV), created in b_HALK
+halk <- read_csv(file.path()) 
 
 halk %>% 
   group_by(state) %>% 
@@ -1792,9 +1796,11 @@ glimpse(ia_fishobs_trial)
 
 ia_catch_eff <- as_arrow_table(ia_fishobs_trial)
 
-write_dataset(dataset = ia_catch_eff, path = "Data_and_Scripts/Data/output/ia_file_arrow")
+# UPDATE FILEPATH FOR SAVING
+write_dataset(dataset = ia_catch_eff, path = )
 
-ia_data <- open_dataset("Data_and_Scripts/Data/output/ia_file_arrow")
+#UPDATE FILE PATH FROM WHERE THE PARQUET FILEPATH WAS SAVED
+ia_data <- open_dataset()
 
 glimpse(ia_data)
 
@@ -1805,7 +1811,9 @@ glimpse(ia_data)
 ```{r}
 #here I do some very basic checks on what the data structure and general outputs look like (i.e., s this thing behaving like the obs-level file I think it is?). MI work left here as an idea of a previous state's work. In my opinion, it is not our job to QC the actual observations at this point (like, is a WAE really going to be 500mm at age zero), but instead to use this QC as a check on the operations performed in this script.  
 
-ia_data <- open_dataset(sources = file.path("D:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "Parquet files", "ia_file_arrow"))
+
+#UPDATE FILEPATH TO IA PARQUET FILE
+ia_data <- open_dataset(sources = file.path())
 glimpse(ia_data)
 
 ia_data %>% 

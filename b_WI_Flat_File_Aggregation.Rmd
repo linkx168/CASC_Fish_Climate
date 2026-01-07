@@ -73,7 +73,9 @@ remove_unnecessary_suffixes_2 <- function(dt) {
 }
 
 #generate a file list to import
-files_list <- list.files(path = "D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/WI_Data/wi_raw_disaggregated_data/", pattern = ".+\\.csv") #grabs only.csv files
+
+#UPDATE FILE PATH TO IL DISAGGREGATED DATA FOLDER
+files_list <- list.files(path = , pattern = ".+\\.csv") #grabs only.csv files
 files_list
 
 #object for use in loop (simple length of file list)
@@ -86,7 +88,8 @@ for(i in 1:n) {
   filei <- word(gsub(".csv","", files_list[i]), start = -1, sep = fixed("/"))
   #this does those two steps in one package
   assign(filei ,
-          fread(paste0("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/WI_Data/wi_raw_disaggregated_data/",
+         #UPDATE FILE PATH TO IL DISAGGREGATED DATA FOLDER
+          fread(paste0(,
                                           files_list[i])))
   
   # if the file is a crosswalk, do not rename anything, just loop to the confirm import line
@@ -1176,8 +1179,8 @@ rm(wi_winnebago_fishobservations_23April2021 )
 
 ## Get targeted cisco data worked in
 ```{r}
-
-wi_target_cisco8nov2023 <- read_csv("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/WI_Data/wi_target_cisco8nov2023.csv")
+#read in wi targeted cisco data
+wi_target_cisco8nov2023 <- read_csv()
 
 #clean WI targeted cisco data so that it can match the format of the regular wi data
 wi_cisco_clean <- wi_target_cisco8nov2023 %>%
@@ -1650,7 +1653,8 @@ wi_inland_fishobservations_10Nov2023 <- wi_inland_fishobservations_10Nov2023 %>%
 ```{r}
 # add NHDids
 #here using the MSU-provided crosswalk
-MGLP_crosswalk <- fread("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/crosswalks/MGLP_FISH_LAKES_12Aug24.csv")
+#update file path for mglp fish lakes crosswalk
+MGLP_crosswalk <- fread()
 
 MGLP_crosswalk <- MGLP_crosswalk[STATE == "WI"]
 MGLP_crosswalk[ , STATE_ID := as.numeric(STATE_ID) , ]
@@ -1685,7 +1689,8 @@ wi_inland_fishobservations_10Nov2023 <- wi_inland_fishobservations_10Nov2023 %>%
 
 #sifting for lakes (so our data does not contain lakes/stream)
 
-wi_lat_long <- read_csv("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/WI_Data/wi_lake_wbic_lat_long_PNF.csv")%>%
+#update filepath for wi_lake_wbic_lat_long_PNF.csv
+wi_lat_long <- read_csv()%>%
   mutate(lake.id = as.character(lake.id))%>%
   setDT()
 
@@ -1694,7 +1699,8 @@ wi_inland_fishobservations_10Nov2023[ , lake_id:= as.character(lake_id) , ]
 wi_inland_fishobservations_10Nov2023[wi_lat_long, on = .(lake_id= lake.id), `:=` ("latitude_lake_centroid" = lat, "longitude_lake_centroid" = long)  ]
 
 # downloaded list from https://data-wi-dnr.opendata.arcgis.com/datasets/31f1f67253074ef9afe46cd905bff07a/explore to try to get list of wbics that are associated with rivers
-WI_hydro_list <- read_csv("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/WI_Data/WI_Rivers_Info/24k_Hydro_Waterbodies_(Open_Water).csv")
+#update filepath for 24k_Hydro_Waterbodies_(Open_Water).csv
+WI_hydro_list <- read_csv()
 
 WI_hydro_list <- as.data.table(WI_hydro_list)
 
@@ -1841,7 +1847,8 @@ wi_inland_fishobservations_10Nov2023[sampling_method == "vertical_gill_net", .N 
   
 #this file lives in the crosswalk folder in the drive
 #here we read in a gear cross walk, the file contains each unique gear and assigns it new labels that are consistent across states
-gear_xwalk <- fread("D:/Shared drives/Hansen Lab/RESEARCH PROJECTS/Fish Survey Data/crosswalks/gears_by_state.csv", na.strings = "")%>% 
+  #update file path for gears_by_state.csv
+gear_xwalk <- fread(, na.strings = "")%>% 
   filter(state == "Wisconsin") 
 
 #NA's chocke the match, so fill with chr string
@@ -2679,15 +2686,8 @@ wi_inland_fishobservations_10Nov2023 <- wi_inland_fishobservations_10Nov2023 %>%
 
 # Adding HALK Ages
 ```{r}
-halk <- read_csv(file.path("D:",
-                           "Shared drives",
-                           "Hansen Lab",
-                           "RESEARCH PROJECTS",
-                           "Fish Survey Data",
-                           "Parquet files",
-                           "Age-assigned Data",
-                           "d_link_2025_hive",
-                           "halked_fish_xwalk.csv")) 
+#update filepath for halked_fish_xwalk.csv
+halk <- read_csv(file.path()) 
 halk %>% 
   group_by(state) %>% 
   count()
@@ -2747,13 +2747,16 @@ rm(halk)
 #export as parquet file
 ```{r}
 #save dataframe as a csv
-fwrite(wi_inland_fishobservations_10Nov2023, "Data_and_Scripts/Data/output/wi_data.csv" , na="NA" )
+
+#update with filepath for saving
+fwrite(wi_inland_fishobservations_10Nov2023,  , na="NA" )
 
 #remove the object
 rm(wi_inland_fishobservations_10Nov2023)
 
 #read in the object
-wi_dat <- fread("Data_and_Scripts/Data/output/wi_data.csv", na.strings = "NA")
+#update with filepath where .csv was saved
+wi_dat <- fread(, na.strings = "NA")
 glimpse(wi_dat)
 
 #make sure column are correct and in the correct form
@@ -2861,10 +2864,12 @@ wi_dat <- wi_dat %>%
 
 glimpse(wi_dat)
 
+#update with filepath for saving
 write_dataset(dataset = wi_dat, 
-              path = "Data_and_Scripts/Data/output/wi_file_arrow", 
+              path = , 
               format = "parquet")
-wi_data <- open_dataset("Data_and_Scripts/Data/output/wi_file_arrow")
+#update with filepath were parquet was saved
+wi_data <- open_dataset()
 glimpse(wi_data)
 
 

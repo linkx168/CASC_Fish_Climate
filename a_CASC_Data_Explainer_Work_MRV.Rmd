@@ -5,14 +5,6 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-#To-do: 
-1. Can I add the suffixes to these field names in a file specific way? This would avoid the new data added with multiple [state] suddenly adding suffixes to all and breaking everyone else's code code.
-
-The answer is yes, and the idea was that within a state, the suffixes could be dropped where the col name is otherwise not duplicated (this will avoid breaking working code in all the other states)
-
-2. Build in something to strip ; or, after the last word in a string from the data explainer file. 
-    - currently getting baked into the data import in each file
-
 ## Load libraries
 ```{r}
 library(readr)
@@ -32,8 +24,9 @@ library(tidyr)
 ## CASC Data Explainer
 ### Read in
 ```{r}
+# this should point to the data explainer, please contact authors directly for this file if interested in using raw fisheries data
 
-cde <- fread("https://docs.google.com/spreadsheets/d/e/2PACX-1vSE1oFKS5o65kqIkeeY5ISKx7oOHk5tBROE_g95JCaqcsLuxnmwwHvDhOPnFO0Okw/pub?gid=1011323178&single=true&output=csv", na.strings="")
+cde <- fread(, na.strings="")
 ```
 
 ### Prep 
