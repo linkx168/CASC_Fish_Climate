@@ -4,9 +4,9 @@ library(data.table)
 library(tidyverse)
 library(StreamCatTools)
 
-#install data from Paul's package
-load("mwcascfish_src/mwcascfish/data/lake_huc10.rda")
-load("mwcascfish_src/mwcascfish/data/ecoregions.rda")
+#load huc10 and ecoregion data
+load()
+load()
 
 
 age_structures <- c("most_common_structure")
@@ -15,15 +15,8 @@ spp_list <- c(
   "smallmouth_bass", "walleye", "yellow_perch"
 )
 
-ia_data <- open_dataset(sources = file.path("G:", 
-                                            "Shared drives", 
-                                            "Hansen Lab", 
-                                            "RESEARCH PROJECTS", 
-                                            "Fish Survey Data", 
-                                            "Parquet files", 
-                                            "hive_update", 
-                                            "state=Iowa",
-                                            "part-0.parquet")) %>% 
+#update with file path to state specific parquet file
+ia_data <- open_dataset(sources = file.path()) %>% 
   select(-est_age,
          -alk,
          -alk_age_str,

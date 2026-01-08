@@ -6,15 +6,8 @@ library(tidyverse)
 str_to_use <- "most_common"
 
 # get MN age data
-mn_data <- open_dataset(sources = file.path("G:", 
-                                            "Shared drives", 
-                                            "Hansen Lab", 
-                                            "RESEARCH PROJECTS", 
-                                            "Fish Survey Data", 
-                                            "Parquet files", 
-                                            "hive_update", 
-                                            "state=Minnesota",
-                                            "part-0.parquet"))
+# UPDATE WTIH FILEPATH TO STATE SPECIFIC FISH PARQUET
+mn_data <- open_dataset(sources = file.path())
 
 mn_age_data <- 
   mn_data |> 
@@ -37,15 +30,8 @@ mn_age_data <-
 rm(mn_data)
 
 # get WI age data
-wi_data <- open_dataset(sources = file.path("G:", 
-                                            "Shared drives", 
-                                            "Hansen Lab", 
-                                            "RESEARCH PROJECTS", 
-                                            "Fish Survey Data", 
-                                            "Parquet files", 
-                                            "hive_update", 
-                                            "state=Wisconsin",
-                                            "part-0.parquet"))
+# UPDATE WTIH FILEPATH TO STATE SPECIFIC FISH PARQUET
+wi_data <- open_dataset(sources = file.path())
 
 wi_age_data <- 
   wi_data |> 
@@ -65,15 +51,8 @@ wi_age_data <-
 rm(wi_data)
 
 # get MI age data
-mi_data <- open_dataset(sources = file.path("G:", 
-                                                    "Shared drives", 
-                                                    "Hansen Lab", 
-                                                    "RESEARCH PROJECTS", 
-                                                    "Fish Survey Data", 
-                                                    "Parquet files", 
-                                                    "hive_update", 
-                                                    "state=Michigan",
-                                                    "part-0.parquet"))
+# UPDATE WTIH FILEPATH TO STATE SPECIFIC FISH PARQUET
+mi_data <- open_dataset(sources = file.path())
 
 mi_age_data <- mi_data %>% 
   filter(!is.na(age)) %>% 
@@ -90,15 +69,8 @@ mi_age_data <- mi_data %>%
 rm(mi_data)
 
 # get SD age data
-sd_data <- open_dataset(sources = file.path("G:", 
-                                            "Shared drives", 
-                                            "Hansen Lab", 
-                                            "RESEARCH PROJECTS", 
-                                            "Fish Survey Data", 
-                                            "Parquet files", 
-                                            "hive_update", 
-                                            "state=South_Dakota",
-                                            "part-0.parquet"))
+# UPDATE WTIH FILEPATH TO STATE SPECIFIC FISH PARQUET
+sd_data <- open_dataset(sources = file.path())
 
 sd_age_data <- 
   sd_data |> 
@@ -117,15 +89,8 @@ sd_age_data <-
 rm(sd_data)
 
 # get IA age data
-ia_data <- open_dataset(sources = file.path("G:", 
-                                            "Shared drives", 
-                                            "Hansen Lab", 
-                                            "RESEARCH PROJECTS", 
-                                            "Fish Survey Data", 
-                                            "Parquet files", 
-                                            "hive_update", 
-                                            "state=Iowa",
-                                            "part-0.parquet"))
+# UPDATE WTIH FILEPATH TO STATE SPECIFIC FISH PARQUET
+ia_data <- open_dataset(sources = file.path())
 
 ia_age_data <-
   ia_data |> 
@@ -150,15 +115,8 @@ ia_age_data <-
 rm(ia_data)
 
 # get IL age data
-il_data <- open_dataset(sources = file.path("G:", 
-                                            "Shared drives", 
-                                            "Hansen Lab", 
-                                            "RESEARCH PROJECTS", 
-                                            "Fish Survey Data", 
-                                            "Parquet files", 
-                                            "hive_update", 
-                                            "state=Illinois",
-                                            "part-0.parquet"))
+# UPDATE WTIH FILEPATH TO STATE SPECIFIC FISH PARQUET
+il_data <- open_dataset(sources = file.path())
 
 il_age_data <-
   il_data |> 
@@ -177,15 +135,8 @@ il_age_data <-
 rm(il_data)
 
 # get IN age data
-in_data <- open_dataset(sources = file.path("G:", 
-                                            "Shared drives", 
-                                            "Hansen Lab", 
-                                            "RESEARCH PROJECTS", 
-                                            "Fish Survey Data", 
-                                            "Parquet files", 
-                                            "hive_update", 
-                                            "state=Indiana",
-                                            "part-0.parquet"))
+# UPDATE WTIH FILEPATH TO STATE SPECIFIC FISH PARQUET
+in_data <- open_dataset(sources = file.path())
 
 in_age_data <-
   in_data |> 
@@ -235,8 +186,10 @@ all_age_data <-
 
 
 #directly read in landscape data
-load("mwcascfish_src/mwcascfish/data/lake_huc10.rda")
-load("mwcascfish_src/mwcascfish/data/ecoregions.rda")
+
+#LOAD HUC10 AND ECOREGION DATA
+load()
+load()
 
 
 halk_age_data <- 

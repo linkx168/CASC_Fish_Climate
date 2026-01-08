@@ -15,48 +15,28 @@ library(arrow)
 # Read in data
 The data in the HALKed files are the lengthen and lengthened fish of the 8 sport fish species, we really only care about the fish that go an age here - so lets filter for where an alk was applied
 ```{r}
-ia_data <- open_dataset(sources = file.path("data", 
-                                            "parquet_files", 
-                                            "ia_data", 
-                                            "halk_aged_data", 
-                                            "most_common_structures", 
-                                            "part-0.parquet")) %>% 
+#read in state specific halked fish data filepath
+ia_data <- open_dataset(sources = file.path()) %>% 
   collect() %>% 
   filter(!is.na(alk))
 
-in_data <- open_dataset(sources = file.path("data", 
-                                            "parquet_files", 
-                                            "in_data", 
-                                            "halk_aged_data", 
-                                            "most_common_structures", 
-                                            "part-0.parquet")) %>% 
+#read in state specific halked fish data filepath
+in_data <- open_dataset(sources = file.path()) %>% 
   collect() %>% 
   filter(!is.na(alk))
 
-il_data <- open_dataset(sources = file.path("data", 
-                                            "parquet_files", 
-                                            "il_data", 
-                                            "halk_aged_data", 
-                                            "most_common_structures", 
-                                            "part-0.parquet")) %>% 
+#read in state specific halked fish data filepath
+il_data <- open_dataset(sources = file.path()) %>% 
   collect() %>% 
   filter(!is.na(alk))
 
-mi_data <- open_dataset(sources = file.path("data", 
-                                            "parquet_files", 
-                                            "mi_data", 
-                                            "halk_aged_data", 
-                                            "most_common_structures", 
-                                            "part-0.parquet")) %>% 
+#read in state specific halked fish data filepath
+mi_data <- open_dataset(sources = file.path()) %>% 
   collect() %>% 
   filter(!is.na(alk))
 
-sd_data <- open_dataset(sources = file.path("data", 
-                                            "parquet_files", 
-                                            "sd_data", 
-                                            "halk_aged_data", 
-                                            "most_common_structures", 
-                                            "part-0.parquet")) %>% 
+#read in state specific halked fish data filepath
+sd_data <- open_dataset(sources = file.path()) %>% 
   collect() %>% 
   filter(!is.na(alk)) %>% 
   mutate(state = "South_Dakota")
@@ -64,28 +44,19 @@ sd_data <- open_dataset(sources = file.path("data",
 small <- bind_rows(ia_data, il_data, mi_data, sd_data, in_data)
 rm(ia_data, il_data, mi_data, sd_data, in_data)
 
-
-wi_data <- open_dataset(sources = file.path("data", 
-                                            "parquet_files", 
-                                            "wi_data", 
-                                            "halk_aged_data", 
-                                            "most_common_structures", 
-                                            "part-0.parquet")) %>% 
+#read in state specific halked fish data filepath
+wi_data <- open_dataset(sources = file.path()) %>% 
   collect() %>% 
   filter(!is.na(alk))
 small2 <- bind_rows(small, wi_data)
 rm(wi_data, small)
 
-
-mn_data <- open_dataset(sources = file.path("data", 
-                                            "parquet_files", 
-                                            "mn_data", 
-                                            "halk_aged_data", 
-                                            "most_common_structures", 
-                                            "part-0.parquet")) %>% 
+#read in state specific halked fish data filepath
+mn_data <- open_dataset(sources = file.path()) %>% 
   collect() %>% 
   mutate(obs.id = as.character(obs.id)) %>% 
   filter(!is.na(alk))
+
 mw_data <- bind_rows(small2, mn_data)
 rm(small2, mn_data)
 ```
@@ -94,8 +65,9 @@ rm(small2, mn_data)
 This filtering is a step to make sure that fish that get assigned an age are within the length range of the given creation of the ALK. Example, there may only be age3+ walleye aged in the creation of an alk, we need to make sure that a super small walleye (~100mm, age-0) that would get assigned age-3 are not included 
 ```{r}
 #we will need HUC and ecoregion data for this
-load("mwcascfish_src/mwcascfish/data/lake_huc10.rda")
-load("mwcascfish_src/mwcascfish/data/ecoregions.rda")
+#read in huc and ecoregion data 
+load()
+load()
 
 mw_data <- mw_data %>% 
   mutate(state = case_when(state == "South_Dakota" ~ "South Dakota",
@@ -380,7 +352,7 @@ mw_data <- mw_data_with_cuts %>%
          alk_age_str,
          alk_length,
          alk_n)
-#write_csv(mw_data, "halked_fish_xwalk.csv")
+#write_csv(mw_data, ".csv")
 ```
 
 # check winni example  
@@ -397,11 +369,5 @@ check %>%
   filter(species == "walleye") %>% 
   ggplot() +
   geom_point(aes(est.age, length, color = alk.age.str))
-
-#lets look at the actual halk 
-load(here::here("midwest_most_common_structure_halk_2025-09-03.RData"))
-
-check <- halk %>% 
-  filter(lake.id == "11014700" & species %in% "walleye" & year %in% c(2010, 2012))
 ```
 

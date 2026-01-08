@@ -15,13 +15,8 @@ library(arrow)
 
 #data
 ```{r}
-il_data <- open_dataset(sources = file.path("G:",
-                                            "Shared drives",
-                                            "Hansen Lab",
-                                            "RESEARCH PROJECTS",
-                                            "Fish Survey Data",
-                                            "Parquet files",
-                                            "hive_update"), partitioning = c("state")) %>% 
+#update with filepath to hived dataset
+il_data <- open_dataset(sources = file.path(), partitioning = c("state")) %>% 
   filter(state == "Illinois")
 glimpse(il_data)
 ```
@@ -66,16 +61,8 @@ We can see here that all of our flags concerning effort have been spotted by the
 #walleye filtering 
 ```{r}
 #filters for metric (adult abundance) and selects columns needed for survey filtering
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Illinois" & species_1 == "walleye") %>% 
   select(-metric,
          -species_1,
@@ -263,16 +250,8 @@ rm(adult_walleye)
 #black crappie filtering
 ```{r}
 #filters for metric (adult abundance) and selects columns needed for survey filtering
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Illinois" & species_1 == "black_crappie") %>% 
   select(-metric,
          -species_1,
@@ -453,16 +432,8 @@ rm(adult_black_crappie)
 #bluegill filtering
 ```{r}
 ##filters for metric (adult abundance) and selects columns needed for survey filtering
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Illinois" & species_1 == "bluegill") %>% 
   select(-metric,
          -species_1,
@@ -642,16 +613,8 @@ rm(adult_bluegill)
 #largemouth bass filtering
 ```{r}
 ##filters for metric (adult abundance) and selects columns needed for survey filtering
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Illinois" & species_1 == "largemouth_bass") %>% 
   select(-metric,
          -species_1,
@@ -832,16 +795,8 @@ rm(adult_largemouth_bass)
 #smallmouth bass filtering
 ```{r}
 ##filters for metric (adult abundance) and selects columns needed for survey filtering
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Illinois" & species_1 == "smallmouth_bass") %>% 
   select(-metric,
          -species_1,
@@ -1020,16 +975,8 @@ rm(adult_smallmouth_bass)
 #northern pike filtering
 ```{r}
 ##filters for metric (adult abundance) and selects columns needed for survey filtering
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Illinois" & species_1 == "northern_pike") %>% 
   select(-metric,
          -species_1,
@@ -1214,16 +1161,8 @@ rm(adult_northern_pike)
 #yellow perch filtering
 ```{r}
 ###filters for metric (adult abundance) and selects columns needed for survey filtering
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Illinois" & species_1 == "yellow_perch") %>% 
   select(-metric,
          -species_1,
@@ -1421,5 +1360,7 @@ il_filtered_species <- bind_rows(adult_walleye_cpue %>%
                                    mutate(species_1 = "northern_pike"), 
                                  adult_yellow_perch_cpue %>% 
                                    mutate(species_1 = "yellow_perch"))
-write_csv(il_filtered_species, "IL_all_cpue_filtered.csv")
+
+#update filepath to save state specific abundance file
+#write_csv(il_filtered_species, ".csv")
 ```

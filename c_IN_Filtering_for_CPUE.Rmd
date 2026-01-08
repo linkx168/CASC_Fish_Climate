@@ -15,13 +15,8 @@ library(arrow)
 
 #data
 ```{r}
-in_data <- open_dataset(sources = file.path("G:",
-                                            "Shared drives",
-                                            "Hansen Lab",
-                                            "RESEARCH PROJECTS",
-                                            "Fish Survey Data",
-                                            "Parquet files",
-                                            "hive_update"), partitioning = c("state")) %>% 
+#update filepath to hived dataset
+in_data <- open_dataset(sources = file.path(), partitioning = c("state")) %>% 
   filter(state == "Indiana")
 glimpse(in_data)
 ```
@@ -54,16 +49,8 @@ Looks like we have some effort flags, some noting missing effort and some noting
 
 #filtering walleye
 ```{r}
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Indiana" & species_1 == "walleye") %>% 
   select(-metric,
          -species_1,
@@ -185,16 +172,8 @@ rm(adult_walleye)
 
 #filtering black crappie
 ```{r}
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Indiana" & species_1 == "black_crappie") %>% 
   select(-metric,
          -species_1,
@@ -315,16 +294,8 @@ rm(adult_black_crappie)
 
 #filtering bluegill
 ```{r}
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Indiana" & species_1 == "bluegill") %>% 
   select(-metric,
          -species_1,
@@ -451,16 +422,8 @@ rm(adult_bluegill)
 
 #filtering largemouth bass
 ```{r}
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Indiana" & species_1 == "largemouth_bass") %>% 
   select(-metric,
          -species_1,
@@ -574,16 +537,8 @@ rm(adult_largemouth_bass)
 
 #filtering smallmouth bass
 ```{r}
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Indiana" & species_1 == "smallmouth_bass") %>% 
   select(-metric,
          -species_1,
@@ -697,16 +652,8 @@ rm(adult_smallmouth_bass)
 
 #filtering northern pike
 ```{r}
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Indiana" & species_1 == "northern_pike") %>% 
   select(-metric,
          -species_1,
@@ -825,16 +772,8 @@ rm(adult_northern_pike)
 
 #filtering yellow perch
 ```{r}
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Indiana" & species_1 == "yellow_perch") %>% 
   select(-metric,
          -species_1,
@@ -954,16 +893,8 @@ rm(adult_yellow_perch)
 
 #filtering cisco
 ```{r}
-filter_table_effort <- read_csv(file.path("G:",
-                                          "Shared drives",
-                                          "Hansen Lab",
-                                          "RESEARCH PROJECTS",
-                                          "Fish Survey Data",
-                                          "manuscript_products",
-                                          "abundance",
-                                          "data",
-                                          "input",
-                                          "cpue_inclusion_table.csv")) %>% 
+#update with filepath to inclusion/filtering table
+filter_table_effort <- read_csv(file.path()) %>% 
   filter(metric == "adult_abundance" & state == "Indiana" & species_1 == "cisco") %>% 
   select(-metric,
          -species_1,
@@ -1098,6 +1029,8 @@ in_filtered_species <- bind_rows(adult_walleye_cpue %>%
                                    mutate(species_1 = "northern_pike"), 
                                  adult_yellow_perch_cpue %>% 
                                    mutate(species_1 = "yellow_perch"))
-write_csv(in_filtered_species, "IN_all_cpue_filtered.csv")
+
+#update for state specific saving for abundance file
+#write_csv(in_filtered_species, ".csv")
 ```
 

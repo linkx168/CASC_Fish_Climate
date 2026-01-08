@@ -16,7 +16,8 @@ library(arrow)
 # read in filtered state cpue data and select for appropriate columns
 ```{r}
 #MI
-mi <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "manuscript_products", "abundance", "data", "output", "MI_all_cpue_filtered.csv")) %>% 
+#update with state specific abundance file path, saved from the state cpue filterings
+mi <- read_csv(file.path()) %>% 
   select(state,
        nhdhr_id,
        lake_id,
@@ -39,7 +40,8 @@ mi <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS
   mutate(total_effort_ident = as.character(total_effort_ident))
 
 #IA
-ia <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "manuscript_products", "abundance", "data", "output", "IA_all_cpue_filtered.csv")) %>% 
+#update with state specific abundance file path, saved from the state cpue filterings
+ia <- read_csv(file.path()) %>% 
   select(state,
        nhdhr_id,
        lake_id,
@@ -62,7 +64,8 @@ ia <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS
   mutate(total_effort_ident = as.character(total_effort_ident))
 
 #SD
-sd <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "manuscript_products", "abundance", "data", "output", "SD_all_cpue_filtered.csv")) %>% 
+#update with state specific abundance file path, saved from the state cpue filterings
+sd <- read_csv(file.path()) %>% 
   select(state,
        nhdhr_id,
        lake_id,
@@ -85,7 +88,8 @@ sd <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS
   mutate(total_effort_ident = as.character(total_effort_ident))
 
 #IL
-il <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "manuscript_products", "abundance", "data", "output", "IL_all_cpue_filtered.csv")) %>% 
+#update with state specific abundance file path, saved from the state cpue filterings
+il <- read_csv(file.path()) %>% 
   select(state,
        nhdhr_id,
        lake_id,
@@ -108,7 +112,8 @@ il <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS
   mutate(lake_id = as.character(lake_id))
 
 #IN
-indy <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "manuscript_products", "abundance", "data", "output", "IN_all_cpue_filtered.csv")) %>% 
+#update with state specific abundance file path, saved from the state cpue filterings
+indy <- read_csv(file.path()) %>% 
   select(state,
        nhdhr_id,
        lake_id,
@@ -129,7 +134,8 @@ indy <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJEC
        count,
        cpue)
 
-mn <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "manuscript_products", "abundance", "data", "output", "MN_all_cpue_filtered.csv")) %>% 
+#update with state specific abundance file path, saved from the state cpue filterings
+mn <- read_csv(file.path()) %>% 
   mutate(month = month(as.Date(date_total_effort_ident))) %>% 
   select(state,
        nhdhr_id,
@@ -154,7 +160,8 @@ mn <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS
          total_effort_ident = as.character(total_effort_ident))
 
 #wi
-wi <- read_csv(file.path("G:", "Shared drives", "Hansen Lab", "RESEARCH PROJECTS", "Fish Survey Data", "manuscript_products", "abundance", "data", "output", "WI_all_cpue_filtered.csv")) %>% 
+#update with state specific abundance file path, saved from the state cpue filterings
+wi <- read_csv(file.path()) %>% 
   select(state,
        nhdhr_id,
        lake_id,
@@ -281,6 +288,6 @@ mw_cpue %>%
 
 # saving
 ```{r}
-write_csv(mw_cpue, "abundance_product.csv")
+#write_csv(mw_cpue, ".csv")
 ```
 

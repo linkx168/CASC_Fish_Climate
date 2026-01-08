@@ -15,13 +15,8 @@ library(arrow)
 
 # Data
 ```{r}
-mw_data <- open_dataset(sources = file.path("G:", 
-                                            "Shared drives", 
-                                            "Hansen Lab", 
-                                            "RESEARCH PROJECTS", 
-                                            "Fish Survey Data", 
-                                            "Parquet files", 
-                                            "hive_update"), partitioning = c("state"))
+#update filepath to hived data set
+mw_data <- open_dataset(sources = file.path(), partitioning = c("state"))
 ```
 
 # Data prep for Analysis 
